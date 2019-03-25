@@ -13,7 +13,7 @@ pipeline {
             stage("Check If Tag with higher version Exists") {
                 steps {
                      script{
-                           def listofTags = [1.9.5.0, 1.9.7.0, v1.0.0, v1.0.1, v1.0.2]
+                           def listofTags = ["1.0","2.0","3.1.1"]
                             def sorted = listofTags.sort(false) { a, b -> 
                             List verA = a.tokenize('.')
                             List verB = b.tokenize('.')
@@ -32,7 +32,7 @@ pipeline {
                             verA.size() <=> verB.size()
                         }
                         println "sorted versions: $sorted"
-                        if (recentVersion != params.TAG) {
+                        if (recentVersion != null) {
                                 println "Tag with higher version exists ${recentVersion}"
                                 sh 'exit 1'
                             }                           
