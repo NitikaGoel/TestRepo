@@ -1,0 +1,43 @@
+#!bin/groovy
+ //do a try catch
+
+
+
+pipeline {
+    agent none
+     parameters {
+         string(name: 'BRANCH', defaultValue: 'master', description: '''Specify the branch for which tag needs to be created''')
+         string(name: 'TAG', defaultValue: null, description: '''Specify the tag name in format of Semver(X.Y.Z)''')
+    }
+    stages{
+            stage("Check If Tag with higher version Exists") {
+                steps {
+                     script{
+                           String listofTags = [1.9.5.0, 1.9.7.0, v1.0.0, v1.0.1, v1.0.2]
+                            def sorted = listofTags.sort(false) { a, b -> 
+                            List verA = a.tokenize('.')
+                            List verB = b.tokenize('.')
+                            def commonIndices = Math.min(verA.size(), verB.size())
+                            for (int i = 0; i < commonIndices; ++i) {
+                            try {
+                            def numA = verA[i].toInteger()
+                            def numB = verB[i].toInteger()
+                            println "comparing $numA and $numB"
+                            if (numA != numB) {
+                                return numA <=> numB
+                            }}
+                            catch(Exception ex) {
+                                println "Not a Integer"
+                            }
+                            verA.size() <=> verB.size()
+                        }
+                        println "sorted versions: $sorted"
+                        if (recentVersion != params.TAG) {
+                                println "Tag with higher version exists ${recentVersion}"
+                                sh 'exit 1'
+                            }                           
+                        }
+                  }   
+            }
+           
+}//end pipeline
